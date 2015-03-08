@@ -9,7 +9,7 @@
     <div id="chart"></div>
     <script>
       var SESSION_ACTIVITY_LIMIT_MINUTES = 5; 
-      var QUERY_INTERVAL_SECONDS = 1;
+      var QUERY_INTERVAL_SECONDS = 2;
       var startTime = 0;
       var activeUsers = {};
       var numQueries = 0;
@@ -80,9 +80,9 @@
           
           //chartData['Active users'][] = _.keys(activeUsers).length;
           console.log(activeUsers);
-          
+          console.log(chart.series[0]);
           if (numQueries > 0) {
-            chart.series[0].addPoint([moment().format('HH:mm:ss'), _.keys(activeUsers).length], true, chart.series[0].length > 10);
+            chart.series[0].addPoint([moment().format('HH:mm:ss'), _.keys(activeUsers).length], true, chart.series[0].data.length > 10);
           }
         });
       }
