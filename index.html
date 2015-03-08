@@ -8,7 +8,7 @@
   <body class="mixpanel-platform-body">
     <div class="chart"></div>
     <script>
-      var SESSION_ACTIVITY_LIMIT = 5; // seconds
+      var SESSION_ACTIVITY_LIMIT = 5; // minutes
       var startTime = 0;
       var activeUsers = {};
       var chartData = {
@@ -31,9 +31,9 @@
           }, {});
           
           activeUsers = _.extend(activeUsers, usersInBatch);
-          _.each(activeUsers, function(distinctId, lastActivity) {
-            if (lastActivity < startTime - SESSION_ACTIVITY_LIMIT * 1000) {
-              console.log('deleting stale user session ' + distinctId + '. Last activity was ' + ((startTime - lastActivity) / 1000) + ' ago');
+          _.each(activeUsers, function(lastActivity, distinctId) {
+            if (lastActivity < startTime - SESSION_ACTIVITY_LIMIT * 60 * 1000) {
+              console.log('deleting stale user session ' + distinctId + '. Last activity was ' + parseInt((startTime - lastActivity) / 1000) + ' seconds ago');
               delete activeUsers[distinctId];
             }
           });
