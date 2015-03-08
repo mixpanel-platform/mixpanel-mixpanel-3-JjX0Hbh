@@ -4,9 +4,16 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/css/reset.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
+    <style type="text/css">
+      
+    </style>
   </head>
   <body class="mixpanel-platform-body">
-    <div id="chart"></div>
+    <div class="countdown">
+      <span>Collecting session data...</span>
+      <span class="seconds-left">20</span>
+    </div>
+    <div id="chart" style="display: none;"></div>
     <script>
       var SESSION_ACTIVITY_LIMIT_MINUTES = 5; 
       var QUERY_INTERVAL_SECONDS = 2;
@@ -74,6 +81,17 @@
       }
 
       MP.api.ready(function() {
+        var countdownInterval = setInterval(function() { 
+          var cur = parseInt($('.seconds-left').text())
+          debugger;
+          if (cur === 0) {
+            clearInterval(countdownInterval);
+            $('.countdown').hide();
+            $('#chart').show();
+          } else {
+            $('.seconds-left').text(cur-1);
+          }
+        }, 1000);
         setInterval(getActiveUsers, QUERY_INTERVAL_SECONDS * 1000);
       });
     </script>
