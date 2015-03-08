@@ -6,16 +6,54 @@
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
   </head>
   <body class="mixpanel-platform-body">
-    <div class="chart"></div>
+    <div id="chart"></div>
     <script>
       var SESSION_ACTIVITY_LIMIT = 5; // minutes
       var startTime = 0;
       var activeUsers = {};
-      var chartData = {
-        'Active users': {}
-      }
-      
-      $(".chart").MPChart({chartType: 'line'});
+      var chart = new Highcharts.Chart({
+          chart: {
+              renderTo: 'chart',
+              type: 'area'
+          },
+          title: {
+              text: 'Active users'
+          },
+          subtitle: {
+              text: 'Users currently using Mixpanel'
+          },
+          xAxis: {
+              allowDecimals: false,
+              labels: {
+                  formatter: function () {
+                      return this.value; // clean, unformatted number for year
+                  }
+              }
+          },
+           yAxis: {
+              title: {
+                  text: 'Active users'
+              },
+          },
+          tooltip: {
+              pointFormat: '{point.y:,.0f} active users'
+          },
+          plotOptions: {
+              area: {
+                  marker: {
+                      enabled: false,
+                      symbol: 'circle',
+                      radius: 2,
+                      states: {
+                          hover: {
+                              enabled: true
+                          }
+                      }
+                  }
+              }
+          },
+          series: [{name: 'Active users', data: []}]
+      });
       
       var getActiveUsers = function() { 
         MP.api.query("/api/2.0/live", {start_time: startTime}).done(function(resp) { 
@@ -38,18 +76,16 @@
             }
           });
           
-          chartData['Active users'][moment().format('YYYY-MM-DD HH:mm')] = _.keys(activeUsers).length;
+          //chartData['Active users'][] = _.keys(activeUsers).length;
           console.log(activeUsers);
-          console.log(chartData);
           
-          $(".chart").MPChart('setData', chartData);
-          
+          chart.series[0].addPoint([moment().format('HH:mm:ss'), _.keys(activeUsers).length]);
           
         });
       }
 
       MP.api.ready(function() {
-        setInterval(getActiveUsers, 3000);
+        setInterval(getActiveUsers, 5000);
       });
     </script>
   </body>
