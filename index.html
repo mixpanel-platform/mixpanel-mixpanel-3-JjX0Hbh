@@ -21,10 +21,11 @@
         MP.api.query("/api/2.0/live", {start_time: startTime}).done(function(resp) { 
       
           var usersInBatch = _.reduce(resp, function(results, event) {
-            startTime = Math.max(startTime, event.$ts)
+            eventTimestamp = parseInt(event.$ts);
+            startTime = Math.max(startTime, eventTimestamp)
             var distinctId = event.properties.distinct_id;
-            if (distinctId && (!results[distinctId] || results[distinctId] < event.$ts)) {
-              results[event.properties.distinct_id] = event.$ts;
+            if (distinctId && (!results[distinctId] || results[distinctId] < eventTimestamp)) {
+              results[event.properties.distinct_id] = eventTimestamp;
             }
             return results
           }, {});
@@ -32,6 +33,7 @@
           activeUsers = _.extend(activeUsers, usersInBatch);
           _.each(activeUsers, function(distinctId, lastActivity) {
             if (lastActivity < startTime - SESSION_ACTIVITY_LIMIT * 1000) {
+              console.log('deleting stale user session ' + distinctId + '. Last activity was ' + ((startTime - lastActivity) / 1000) + ' ago');
               delete activeUsers[distinctId];
             }
           });
