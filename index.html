@@ -7,8 +7,25 @@
   </head>
   <body class="mixpanel-platform-body">
     <script>
+      var ts = 0;
+      var updateEvents = function() { 
+        MP.api.query("/api/2.0/live", {start_time: ts}).done(function(resp) { 
+          _.map(resp, function(event) {
+            
+            if (event.event != "API request") {
+              $("<div>").text(event.event).appendTo("body");
+            }
+            
+            // set the timestamp to the max timestamp we've seen
+            if (event.$ts > ts) {
+              ts = event.$ts
+            }
+          });
+        });
+      }
+
       MP.api.ready(function() {
-        // Run queries and display results here
+        setInterval(updateEvents, 1000);
       });
     </script>
   </body>
