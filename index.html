@@ -6,26 +6,48 @@
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
   </head>
   <body class="mixpanel-platform-body">
+    <div class="chart"></div>
     <script>
-      var ts = 0;
-      var updateEvents = function() { 
-        MP.api.query("/api/2.0/live", {start_time: ts}).done(function(resp) { 
-          _.map(resp, function(event) {
-            
-            if (event.event != "API request") {
-              $("<div>").text(event.event).appendTo("body");
+      var SESSION_ACTIVITY_LIMIT = 5; // seconds
+      var startTime = 0;
+      var activeUsers = {};
+      var chartData = {
+        'Active users': {}
+      }
+      
+      $(".chart").MPChart({chartType: 'line'});
+      
+      var getActiveUsers = function() { 
+        MP.api.query("/api/2.0/live", {start_time: startTime}).done(function(resp) { 
+      
+          var usersInBatch = _.reduce(resp, function(results, event) {
+            startTime = Math.max(startTime, event.$ts)
+            var distinctId = event.properties.distinct_id;
+            if (distinctId && (!results[distinctId] || results[distinctId] < event.$ts)) {
+              results[event.properties.distinct_id] = event.$ts;
             }
-            
-            // set the timestamp to the max timestamp we've seen
-            if (event.$ts > ts) {
-              ts = event.$ts
+            return results
+          }, {});
+          
+          activeUsers = _.extend(activeUsers, usersInBatch);
+          _.each(activeUsers, function(distinctId, lastActivity) {
+            if (lastActivity < startTime - SESSION_ACTIVITY_LIMIT * 1000) {
+              delete activeUsers[distinctId];
             }
           });
+          
+          chartData['Active users'][moment().format('YYYY-MM-DD HH:mm')] = _.keys(activeUsers).length;
+          console.log(activeUsers);
+          console.log(chartData);
+          
+          $(".chart").MPChart('setData', chartData);
+          
+          
         });
       }
 
       MP.api.ready(function() {
-        setInterval(updateEvents, 1000);
+        setInterval(getActiveUsers, 3000);
       });
     </script>
   </body>
