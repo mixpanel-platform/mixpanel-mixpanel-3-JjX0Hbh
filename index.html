@@ -10,18 +10,26 @@
         float: left;
       }
       
+      .sessionSelectLabel {
+        color: #747D94;
+        font-size: 15px;
+        font-weight: bold;
+        margin-right: 11px;
+        margin-top: 5px;
+      }
       .sessionSelect {
         float: right;
       }
       
-      .sessionLength::before {
-        content: 'Session length';
-      }
     </style>
   </head>
   <body class="mixpanel-platform-body">
+    <div class="controls">
+      
     <div class="eventSelect"></div>
     <div class="sessionSelect"></div>
+    <div class="sessionSelectLabel">Session length:</div>
+    </div>
     <div id="chart"></div>
     <script>
       var SESSION_ACTIVITY_LIMIT_SECONDS = 30; 
