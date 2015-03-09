@@ -5,39 +5,33 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
     <style type="text/css">
-      
+      .eventSelect {
+        margin-bottom: 15px;
+      }
     </style>
   </head>
   <body class="mixpanel-platform-body">
-    <div class="countdown">
-      <span>Collecting session data...</span>
-      <span class="seconds-left">20</span>
-    </div>
-    <div id="chart" style="display: none;"></div>
+    <div class="eventSelect"></div>
+    <div id="chart"></div>
     <script>
       var SESSION_ACTIVITY_LIMIT_MINUTES = 5; 
-      var QUERY_INTERVAL_SECONDS = 2;
-      var startTime = 0;
+      var QUERY_INTERVAL_SECONDS = 5;
+      var MAX_VALUES = ;
+      var startTime = 20;
       var activeUsers = {};
-      var numQueries = 0;
       var chart = new Highcharts.Chart({
           chart: {
               renderTo: 'chart',
               type: 'area'
           },
           title: {
-              text: 'Active users'
+              text: 'Live on site'
           },
           subtitle: {
               text: 'Users currently using Mixpanel'
           },
           xAxis: {
-              allowDecimals: false,
-              labels: {
-                  formatter: function () {
-                      return this.value; // clean, unformatted number for year
-                  }
-              }
+              type: 'category'
           },
            yAxis: {
               title: {
@@ -51,8 +45,8 @@
       });
       
       var getActiveUsers = function() { 
-        MP.api.query("/api/2.0/live", {start_time: startTime}).done(function(resp) { 
-          numQueries++;
+        MP.api.query("/api/2.0/live", {start_time: startTime, search: $(".eventSelect").val() || ""}).done(function(resp) { 
+        
           var usersInBatch = _.reduce(resp, function(results, event) {
             eventTimestamp = parseInt(event.$ts);
             startTime = Math.max(startTime, eventTimestamp)
@@ -71,27 +65,15 @@
             }
           });
           
-          //chartData['Active users'][] = _.keys(activeUsers).length;
-          console.log(activeUsers);
-          console.log(chart.series[0]);
-          if (numQueries > 0) {
-            chart.series[0].addPoint([moment().format('HH:mm:ss'), _.keys(activeUsers).length], true, chart.series[0].data.length > 10);
-          }
+          chart.series[0].addPoint({name: moment().format('HH:mm:ss'), y: _.keys(activeUsers).length}, true, chart.series[0].data.length > MAX_VALUES);
         });
       }
 
       MP.api.ready(function() {
-        var countdownInterval = setInterval(function() { 
-          var cur = parseInt($('.seconds-left').text())
-          debugger;
-          if (cur === 0) {
-            clearInterval(countdownInterval);
-            $('.countdown').hide();
-            $('#chart').show();
-          } else {
-            $('.seconds-left').text(cur-1);
-          }
-        }, 1000);
+        $('.eventSelect').MPEventSelect().on('change', function() {
+          chart.series[0].setData([]);
+          activeUsers = {};
+        });
         setInterval(getActiveUsers, QUERY_INTERVAL_SECONDS * 1000);
       });
     </script>
