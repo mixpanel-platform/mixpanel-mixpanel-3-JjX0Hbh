@@ -11,6 +11,7 @@
       }
       
       .sessionSelectLabel {
+        float: right;
         color: #747D94;
         font-size: 15px;
         font-weight: bold;
@@ -90,10 +91,7 @@
           eventLabel = "performing \"" + $('.eventSelect').val() + "\"";
         }
         var secondsOnPage = parseInt(Math.max(1, (moment() - initializedAt) / 1000));
-        var timeLabel = ""
-       
-        timeLabel = Math.min(secondsOnPage, SESSION_ACTIVITY_LIMIT_SECONDS) + " seconds";
-        chart.setTitle({text: _.sprintf("Users %s in the last %s", eventLabel, timeLabel)});
+        chart.setTitle({text: _.sprintf("Users %s in the last %s seconds", eventLabel, SESSION_ACTIVITY_LIMIT_SECONDS)});
       }
 
       MP.api.ready(function() {
