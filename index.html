@@ -14,19 +14,17 @@
     <div class="eventSelect"></div>
     <div id="chart"></div>
     <script>
+      var initializedAt = moment();
       var SESSION_ACTIVITY_LIMIT_MINUTES = 5; 
-      var QUERY_INTERVAL_SECONDS = 5;
-      var MAX_VALUES = 10;
+      var QUERY_INTERVAL_SECONDS = 3;
+      var MAX_VALUES = 15
       
-      var startTime = 20;
+      var startTime = moment().unix();
       var activeUsers = {};
       var chart = new Highcharts.Chart({
           chart: {
               renderTo: 'chart',
               type: 'area'
-          },
-          title: {
-              text: 'Active users in last 5 minutes'
           },
           xAxis: {
               type: 'category'
@@ -65,12 +63,28 @@
           
           chart.series[0].addPoint({name: moment().format('HH:mm:ss'), y: _.keys(activeUsers).length}, true, chart.series[0].data.length > MAX_VALUES);
         });
+        
+        var eventLabel = "performing any event";
+        if ($('.eventSelect').val()) {
+          eventLabel = "performing \"" + $('.eventSelect').val() + "\"";
+        }
+        var secondsOnPage = parseInt(Math.max(1, (moment() - initializedAt) / 1000));
+        var timeLabel = ""
+        if (secondsOnPage < 60) {
+          timeLabel = secondsOnPage + " seconds";
+        } else if (secondsOnPage < 120) {
+          timeLabel = "1 minute";
+        } else {
+          timeLabel = Math.min(parseInt(secondsOnPage / 60), 5) + " minutes";
+        }
+        chart.setTitle({text: _.sprintf("Users %s in the last %s", eventLabel, timeLabel)});
       }
 
       MP.api.ready(function() {
         $('.eventSelect').MPEventSelect().on('change', function() {
           chart.series[0].setData([]);
           activeUsers = {};
+          initializedAt = moment();
         });
         setInterval(getActiveUsers, QUERY_INTERVAL_SECONDS * 1000);
       });
