@@ -17,6 +17,7 @@
       var SESSION_ACTIVITY_LIMIT_MINUTES = 5; 
       var QUERY_INTERVAL_SECONDS = 5;
       var MAX_VALUES = 10;
+      
       var startTime = 20;
       var activeUsers = {};
       var chart = new Highcharts.Chart({
@@ -25,10 +26,7 @@
               type: 'area'
           },
           title: {
-              text: 'Live on site'
-          },
-          subtitle: {
-              text: 'Users currently using Mixpanel'
+              text: 'Active users in last 5 minutes'
           },
           xAxis: {
               type: 'category'
