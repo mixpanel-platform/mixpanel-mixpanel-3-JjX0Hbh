@@ -7,6 +7,15 @@
     <style type="text/css">
       .eventSelect {
         margin-bottom: 15px;
+        float: left;
+      }
+      
+      .sessionSelect {
+        float: right;
+      }
+      
+      .sessionLength::before {
+        content: 'Session length';
       }
     </style>
   </head>
@@ -20,7 +29,7 @@
       var MAX_VALUES = 30
       
       var initializedAt = moment();
-      var startTime = moment().unix();
+      var startTime = 0;
       var activeUsers = {};
       var chart = new Highcharts.Chart({
           chart: {
@@ -59,7 +68,7 @@
           
           activeUsers = _.extend(activeUsers, usersInBatch);
           _.each(activeUsers, function(lastActivity, distinctId) {
-            if (lastActivity < startTime - SESSION_ACTIVITY_LIMIT_SECONDS * 60 * 1000) {
+            if (lastActivity < startTime - SESSION_ACTIVITY_LIMIT_SECONDS * 1000) {
               console.log('deleting stale user session ' + distinctId + '. Last activity was ' + parseInt((startTime - lastActivity) / 1000) + ' seconds ago');
               delete activeUsers[distinctId];
             }
@@ -85,6 +94,7 @@
           chart.setTitle({text: ""});
           activeUsers = {};
           initializedAt = moment();
+          startTime = 0;
         });
         
         $('.sessionSelect').MPSelect({items: [[30, '30 seconds'], [60, '1 minute'], [300, '5 minutes'], [900, '15 minutes'], [1800, '30 minutes']]}).val(SESSION_ACTIVITY_LIMIT_SECONDS).on('change', function() {
