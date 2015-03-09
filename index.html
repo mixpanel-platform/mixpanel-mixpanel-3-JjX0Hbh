@@ -26,6 +26,9 @@
               renderTo: 'chart',
               type: 'area'
           },
+          title: {
+            text: ''
+          },
           xAxis: {
               type: 'category'
           },
@@ -86,6 +89,7 @@
           activeUsers = {};
           initializedAt = moment();
         });
+        getActiveUsers();
         setInterval(getActiveUsers, QUERY_INTERVAL_SECONDS * 1000);
       });
     </script>
