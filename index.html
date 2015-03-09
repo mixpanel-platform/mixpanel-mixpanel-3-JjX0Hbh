@@ -67,7 +67,6 @@
         clearInterval(pollInterval);
         chart.series[0].setData([]);
         chart.setTitle({text: ""});
-        activeUsers = {};
         initializedAt = moment();
         startTime = 0;
         
@@ -117,6 +116,7 @@
 
       MP.api.ready(function() {
         $('.eventSelect').MPEventSelect().on('change', function() {
+          activeUsers = {};
           initialize();
         });
         
