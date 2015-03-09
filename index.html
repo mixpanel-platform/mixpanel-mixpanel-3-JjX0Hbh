@@ -12,9 +12,10 @@
   </head>
   <body class="mixpanel-platform-body">
     <div class="eventSelect"></div>
+    <div class="sessionSelect"></div>
     <div id="chart"></div>
     <script>
-      var SESSION_ACTIVITY_LIMIT_MINUTES = 5; 
+      var SESSION_ACTIVITY_LIMIT_SECONDS = 30; 
       var QUERY_INTERVAL_SECONDS = 3;
       var MAX_VALUES = 30
       
@@ -58,7 +59,7 @@
           
           activeUsers = _.extend(activeUsers, usersInBatch);
           _.each(activeUsers, function(lastActivity, distinctId) {
-            if (lastActivity < startTime - SESSION_ACTIVITY_LIMIT_MINUTES * 60 * 1000) {
+            if (lastActivity < startTime - SESSION_ACTIVITY_LIMIT_SECONDS * 60 * 1000) {
               console.log('deleting stale user session ' + distinctId + '. Last activity was ' + parseInt((startTime - lastActivity) / 1000) + ' seconds ago');
               delete activeUsers[distinctId];
             }
@@ -73,13 +74,8 @@
         }
         var secondsOnPage = parseInt(Math.max(1, (moment() - initializedAt) / 1000));
         var timeLabel = ""
-        if (secondsOnPage < 60) {
-          timeLabel = secondsOnPage + " seconds";
-        } else if (secondsOnPage < 120) {
-          timeLabel = "1 minute";
-        } else {
-          timeLabel = Math.min(parseInt(secondsOnPage / 60), 5) + " minutes";
-        }
+       
+        timeLabel = Math.min(secondsOnPage, SESSION_ACTIVITY_LIMIT_SECONDS) + " seconds";
         chart.setTitle({text: _.sprintf("Users %s in the last %s", eventLabel, timeLabel)});
       }
 
@@ -90,6 +86,11 @@
           activeUsers = {};
           initializedAt = moment();
         });
+        
+        $('.sessionSelect').MPSelect({items: [[30, '30 seconds'], [60, '1 minute'], [300, '5 minutes'], [900, '15 minutes'], [1800, '30 minutes']]}).val(SESSION_ACTIVITY_LIMIT_SECONDS).on('change', function() {
+          SESSION_ACTIVITY_LIMIT_SECONDS = $('.sessionSelect').val();
+        });
+        
         getActiveUsers();
         setInterval(getActiveUsers, QUERY_INTERVAL_SECONDS * 1000);
       });
