@@ -86,6 +86,7 @@
       MP.api.ready(function() {
         $('.eventSelect').MPEventSelect().on('change', function() {
           chart.series[0].setData([]);
+          chart.setTitle({text: ""});
           activeUsers = {};
           initializedAt = moment();
         });
