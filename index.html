@@ -40,6 +40,7 @@
       var initializedAt = moment();
       var startTime = 0;
       var activeUsers = {};
+      var pollInterval = null;
       var chart = new Highcharts.Chart({
           chart: {
               renderTo: 'chart',
@@ -61,6 +62,26 @@
           },
           series: [{name: 'Active users', data: []}]
       });
+      
+      var initialize = function() {
+        clearInterval(pollInterval);
+        chart.series[0].setData([]);
+        chart.setTitle({text: ""});
+        activeUsers = {};
+        initializedAt = moment();
+        startTime = 0;
+        
+        MP.api.query("/api/2.0/live").done(function(resp) { 
+          var maxTs = 0;
+          _.each(resp, function(event) {
+            if (event.$ts > maxTs) maxTs = event.$ts;
+          });
+          startTime = maxTs - QUERY_INTERVAL_SECONDS;
+        });
+        
+        getActiveUsers();
+        pollInterval = setInterval(getActiveUsers, QUERY_INTERVAL_SECONDS * 1000);
+      }
       
       var getActiveUsers = function() { 
         MP.api.query("/api/2.0/live", {start_time: startTime, search: $(".eventSelect").val() || ""}).done(function(resp) { 
@@ -96,19 +117,15 @@
 
       MP.api.ready(function() {
         $('.eventSelect').MPEventSelect().on('change', function() {
-          chart.series[0].setData([]);
-          chart.setTitle({text: ""});
-          activeUsers = {};
-          initializedAt = moment();
-          startTime = 0;
+          initialize();
         });
         
         $('.sessionSelect').MPSelect({items: [[30, '30 seconds'], [60, '1 minute'], [300, '5 minutes'], [900, '15 minutes'], [1800, '30 minutes']]}).val(SESSION_ACTIVITY_LIMIT_SECONDS).on('change', function() {
           SESSION_ACTIVITY_LIMIT_SECONDS = $('.sessionSelect').val();
         });
         
-        getActiveUsers();
-        setInterval(getActiveUsers, QUERY_INTERVAL_SECONDS * 1000);
+        initialize();
+        
       });
     </script>
   </body>
