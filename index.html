@@ -19,6 +19,7 @@
         margin-right: 11px;
         margin-top: 5px;
       }
+      
       .sessionSelect {
         float: right;
       }
@@ -39,9 +40,12 @@
         border-top-right-radius: 5px;
       }
       
+      .feedRow:nth-child(odd) {
+        background: #F0F2F6;
+      }
+      
       .userRow {
         border-bottom: 1px solid #747D94;
-        margin-bottom: 3px;
         padding-bottom: 3px;
         padding-top: 3px;
       }
@@ -191,7 +195,7 @@
         }
         $dfr.done(function(name, avatar) {
           if ($('.feed .uid_' + distinctId).length == 0) {
-            $('.feed').append($("<div>").addClass('uid_' + distinctId));
+            $('.feed').append($("<div>").addClass('feedRow').addClass('uid_' + distinctId));
           }
           var attrs = {
             name: name,
