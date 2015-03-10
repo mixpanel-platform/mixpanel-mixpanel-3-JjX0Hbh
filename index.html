@@ -6,7 +6,6 @@
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
     <style type="text/css">
       .eventSelect {
-        margin-bottom: 15px;
         float: left;
       }
       
@@ -31,11 +30,11 @@
     </style>
   </head>
   <body class="mixpanel-platform-body">
-    <div class="controls">
-      
-    <div class="eventSelect"></div>
-    <div class="sessionSelect"></div>
-    <div class="sessionSelectLabel">Session length:</div>
+    <div class="controls mixpanel-platform-section">
+      <div class="eventSelect"></div>
+      <div class="sessionSelect"></div>
+      <div class="sessionSelectLabel">Session length:</div>
+      <div style="clear: both;"></div>
     </div>
     <div id="chart"></div>
     <div class="note">*Note: This data is pulled from the "live view" endpoint which only returns a max of 200 events. If you are collecting more than 200 events of the same type over three seconds, this data could be slightly inaccurate.</div>
