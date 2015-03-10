@@ -22,6 +22,12 @@
         float: right;
       }
       
+      .note {
+        font-size: 12px;
+        margin-top: 10px;
+        color: #747D94;
+      }
+      
     </style>
   </head>
   <body class="mixpanel-platform-body">
@@ -32,6 +38,7 @@
     <div class="sessionSelectLabel">Session length:</div>
     </div>
     <div id="chart"></div>
+    <div class="note">*Note: This data is pulled from the "live view" endpoint which only returns a max of 200 events. If you are collecting more than 200 events of the same type over three seconds, this data could be slightly inaccurate.</div>
     <script>
       var SESSION_ACTIVITY_LIMIT_SECONDS = 30; 
       var QUERY_INTERVAL_SECONDS = 3;
@@ -111,7 +118,7 @@
           eventLabel = "performing \"" + $('.eventSelect').val() + "\"";
         }
         var secondsOnPage = parseInt(Math.max(1, (moment() - initializedAt) / 1000));
-        chart.setTitle({text: _.sprintf("Users %s in the last %s seconds", eventLabel, SESSION_ACTIVITY_LIMIT_SECONDS)});
+        chart.setTitle({text: _.sprintf("Concurrent users %s in the last %s seconds", eventLabel, SESSION_ACTIVITY_LIMIT_SECONDS)});
       }
 
       MP.api.ready(function() {
