@@ -4,6 +4,8 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/css/reset.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.12.2/JSXTransformer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.12.2/react.js"></script>
     <script type="text/javascript" src="gravatar.js"></script>
     <style type="text/css">
       .eventSelect {
@@ -28,6 +30,33 @@
         color: #747D94;
       }
       
+      .feedHeader {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #747D94;
+        color: rgb(240, 242, 246);
+        font-size: 20px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      
+      .userRow {
+        border-bottom: 1px solid #747D94;
+        margin-bottom: 3px;
+        padding-bottom: 3px;
+        padding-top: 3px;
+      }
+      
+      .userRow img {
+        vertical-align: middle;
+      }
+      
+      .userRow span {
+        padding-left: 20px;
+        font-size: 20px;
+        padding-top: 10px;
+      }
+      
     </style>
   </head>
   <body class="mixpanel-platform-body">
@@ -38,9 +67,10 @@
       <div style="clear: both;"></div>
     </div>
     <div id="chart"></div>
+    <div class="feedHeader">Active users</div>
     <div class="feed"></div>
     <div class="note">*Note: This data is pulled from the "live view" endpoint which only returns a max of 200 events. If you are collecting more than 200 events of the same type over three seconds, this data could be slightly inaccurate.</div>
-    <script>
+    <script type="text/jsx">
       var SESSION_ACTIVITY_LIMIT_SECONDS = 30; 
       var QUERY_INTERVAL_SECONDS = 3;
       var MAX_VALUES = 30
@@ -49,6 +79,11 @@
       var startTime = 0;
       var activeUsers = {};
       var pollInterval = null;
+      var UserRow = React.createClass({
+        render: function() {
+          return <div className="userRow"><img src={this.props.avatar} /><span>{this.props.name}</span></div>;
+        }
+      });
       var chart = new Highcharts.Chart({
           chart: {
               renderTo: 'chart',
@@ -105,7 +140,6 @@
                 }
               }
               if (results[distinctId].lastAction < eventTimestamp) {
-                console.log(event.properties);
                 results[distinctId].lastAction = eventTimestamp;
               }
             }
@@ -132,27 +166,34 @@
         var secondsOnPage = parseInt(Math.max(1, (moment() - initializedAt) / 1000));
         chart.setTitle({text: _.sprintf("Concurrent users %s in the last %s seconds", eventLabel, SESSION_ACTIVITY_LIMIT_SECONDS)});
       }
-
+      
+      
       var addToFeed = function(distinctId) {
         var email = activeUsers[distinctId].email;
+        var $dfr = $.Deferred();
         if (email) {
             MP.api.query('/api/2.0/engage/', {where: 'properties["$email"] == "' + email + '"'}).done(function(resp) { 
               _.each(resp.results, function(profile) {
                 if (profile.$distinct_id == distinctId) {
-                  console.log(profile.$properties);
                   var props = profile.$properties;
                   var name = props['$name'] ? props['$name'] : props['$first_name'] ? props['$first_name'] + ' ' + props['$last_name'] : 'Unknown';
-                  
-                  $('.feed .'+distinctId).remove();
-                  var $row = $("<div>").addClass(distinctId).css({clear: 'both'});
-                  var $img = $("<img>").attr('src', gravatar(email, {secure: true})).css({display: 'inline-block'});
-                  var $name = $("<div>").css({display: 'inline-block'}).text(name);
-                  $row.append($img).append($name).prependTo('.feed');
+                  $dfr.resolve(name, gravatar(email, {secure: true}));
                 }
               });
-             
-            })
+            });
+        } else {
+          $dfr.resolve('Uknown', gravatar('blank', {secure: true}))
         }
+        $dfr.done(function(name, avatar) {
+          if ($('.feed .uid_' + distinctId).length == 0) {
+            $('.feed').append($("<div>").addClass('uid_' + distinctId));
+          }
+          var attrs = {
+            name: name,
+            avatar: avatar
+          }
+          React.render(<UserRow {...attrs} />, $('.feed .uid_' + distinctId)[0]);
+        });
       }
       
       MP.api.ready(function() {
