@@ -6,7 +6,6 @@
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.12.2/JSXTransformer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.12.2/react.js"></script>
-    <script type="text/javascript" src="gravatar.js"></script>
     <style type="text/css">
       .eventSelect {
         float: left;
@@ -150,7 +149,7 @@
           _.each(activeUsers, function(userObj, distinctId) {
             if (userObj.lastAction < startTime - SESSION_ACTIVITY_LIMIT_SECONDS * 1000) {
               console.log('deleting stale user session ' + distinctId + '. Last activity was ' + parseInt((startTime - userObj.lastAction) / 1000) + ' seconds ago');
-              delete activeUsers[distinctId];
+              removeUser(distinctId);
             } else {
               addToFeed(distinctId);
             }
@@ -167,6 +166,10 @@
         chart.setTitle({text: _.sprintf("Concurrent users %s in the last %s seconds", eventLabel, SESSION_ACTIVITY_LIMIT_SECONDS)});
       }
       
+      var removeUser = function(distinctId) {
+        delete activeUsers[distinctId];
+        $('.feed .uid_' + distinctId).remove();
+      }
       
       var addToFeed = function(distinctId) {
         var email = activeUsers[distinctId].email;
@@ -198,7 +201,9 @@
       
       MP.api.ready(function() {
         $('.eventSelect').MPEventSelect().on('change', function() {
-          activeUsers = {};
+          _.each(activeUsers, function(userObj, distinctId) {
+            removeUser(distinctId)
+          });
           initialize();
         });
         
