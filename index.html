@@ -48,6 +48,8 @@
       
       .userRow img {
         vertical-align: middle;
+        height: 50px;
+        width: 50px;
       }
       
       .userRow span {
@@ -180,12 +182,12 @@
                 if (profile.$distinct_id == distinctId) {
                   var props = profile.$properties;
                   var name = props['$name'] ? props['$name'] : props['$first_name'] ? props['$first_name'] + ' ' + props['$last_name'] : 'Unknown';
-                  $dfr.resolve(name, gravatar(email, {secure: true}));
+                  $dfr.resolve(name, gravatar(email, {secure: true, backup: 'https://cdn.mxpnl.com/site_media/images/engage/default_user_icon.png'}));
                 }
               });
             });
         } else {
-          $dfr.resolve('Uknown', gravatar('blank', {secure: true}))
+          $dfr.resolve('Uknown', 'https://i0.wp.com/cdn.mxpnl.com/site_media/images/engage/default_user_icon.png?ssl=1')
         }
         $dfr.done(function(name, avatar) {
           if ($('.feed .uid_' + distinctId).length == 0) {
