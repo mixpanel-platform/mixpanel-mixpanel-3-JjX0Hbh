@@ -119,6 +119,7 @@
         startTime = 0;
         
         MP.api.query("/api/2.0/live", {client_version: 3}).done(function(resp) { 
+          console.log(resp);
           var maxTs = 0;
           _.each(resp.event_list, function(event) {
             if (event.$ts > maxTs) maxTs = event.$ts;
