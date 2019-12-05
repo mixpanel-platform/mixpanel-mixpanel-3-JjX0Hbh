@@ -120,7 +120,7 @@
         
         MP.api.query("/api/2.0/live", {client_version: 3}).done(function(resp) { 
           var maxTs = 0;
-          _.each(resp, function(event) {
+          _.each(resp.event_list, function(event) {
             if (event.$ts > maxTs) maxTs = event.$ts;
           });
           startTime = maxTs - QUERY_INTERVAL_SECONDS;
