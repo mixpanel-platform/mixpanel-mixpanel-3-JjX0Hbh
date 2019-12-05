@@ -111,12 +111,12 @@
           series: [{name: 'Active users', data: []}]
       });
       
+      let startTime = 0;
       var initialize = function() {
         clearInterval(pollInterval);
         chart.series[0].setData([]);
         chart.setTitle({text: ""});
         initializedAt = moment();
-        startTime = 0;
         
         MP.api.query("/api/2.0/live", {client_version: 3}).done(function(resp) { 
           const maxTs = Math.max(...resp.event_list.map(ev => ev.$ts));
