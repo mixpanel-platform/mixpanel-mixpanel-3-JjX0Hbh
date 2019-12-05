@@ -118,7 +118,7 @@
         initializedAt = moment();
         startTime = 0;
         
-        MP.api.query("/api/2.0/live").done(function(resp) { 
+        MP.api.query("/api/2.0/live", {client_version: 3}).done(function(resp) { 
           var maxTs = 0;
           _.each(resp, function(event) {
             if (event.$ts > maxTs) maxTs = event.$ts;
@@ -131,7 +131,7 @@
       }
       
       var getActiveUsers = function() { 
-        MP.api.query("/api/2.0/live", {start_time: startTime, search: $(".eventSelect").val() || ""}).done(function(resp) { 
+        MP.api.query("/api/2.0/live", {client_version: 3, start_time: startTime, search: $(".eventSelect").val() || ""}).done(function(resp) { 
         
           var usersInBatch = _.reduce(resp, function(results, event) {
             eventTimestamp = parseInt(event.$ts);
